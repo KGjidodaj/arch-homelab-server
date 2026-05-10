@@ -1,0 +1,67 @@
+#Every variable is specified in the .env file
+services:
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    environment:
+      FTLCONF_misc_tz: ${TIMEZONE}
+      FTLCONF_webserver_api_password: ${PIHOLE_PASS}
+    volumes:
+      - ./pihole/etc-pihole:/etc/pihole
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+      - "80:80/tcp"
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200m"
+        max-file: "3"
+
+  wireguard:
+    image: lscr.io/linuxserver/wireguard:latest
+    container_name: wireguard
+    cap_add: #Giving capabilities only needed to run not more 
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      PUID: 1000
+      PGID: 1000
+      TZ: ${TIMEZONE}
+      SERVERURL: ${ROUTER_IP}
+      SERVERPORT: 51820
+      PEERS: ${DEVICES}
+      PEERDNS: ${PIHOLE_IP}
+    volumes:
+      - ./wireguard/config:/config
+      - /lib/modules:/lib/modules
+    ports:
+      - "51820:51820/udp"
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100"
+        max-file: "3"
+
+  duckdns:
+    image: lscr.io/linuxserver/duckdns:latest
+    container_name: duckdns
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Athens
+      - SUBDOMAINS=${SDOMAIN}
+      - TOKEN=${TOKEN}
+    restart: unless-stopped
+
+
+
+
+
+
+
+
