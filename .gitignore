@@ -1,3 +1,6 @@
 .env
 pihole/
 wireguard/
+nginx/
+*.log
+conf/nginx.conf

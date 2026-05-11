@@ -11,7 +11,7 @@ services:
     ports:
       - "53:53/tcp"
       - "53:53/udp"
-      - "80:80/tcp"
+      - "8080:80/tcp"
     restart: unless-stopped
     logging:
       driver: "json-file"
@@ -66,5 +66,17 @@ services:
       - TZ=Europe/Athens
     restart: unless-stopped
 
-
+  nginx-proxy-manager:
+    container_name: nginx-proxy-manager
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    environment:
+      - TZ=Europe/Athens
+    volumes: #in any case for the ssl certificate to not be lost
+      - ./nginx/data:/data
+      - ./nginx/letsencrypt:/etc/letsencrypt
 
