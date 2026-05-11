@@ -58,10 +58,13 @@ services:
       - TOKEN=${TOKEN}
     restart: unless-stopped
 
-
-
-
-
+  dnsproxy:
+    container_name: dnsproxy
+    image: adguard/dnsproxy:latest
+    command: -u https://dns.quad9.net/dns-query -b 0.0.0.0 -p 5053 --bootstrap 9.9.9.9
+    environment:
+      - TZ=Europe/Athens
+    restart: unless-stopped
 
 
 
