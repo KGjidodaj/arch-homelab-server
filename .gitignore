@@ -1,6 +1,19 @@
+#All possible files to avoid pushing
+
+##hidden files
 .env
+.recovery
+*.key
+*.pem
+
+##Docker volumes
 pihole/
 wireguard/
 nginx/
+vaultwarden/
+
+##in case of other os and logs
 *.log
-conf/nginx.conf
+*.err
+.DS_Store
+Thumbs.db

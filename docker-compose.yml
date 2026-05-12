@@ -82,3 +82,12 @@ services:
       - ./nginx/data:/data
       - ./nginx/letsencrypt:/etc/letsencrypt
 
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: unless-stopped
+    environment:
+      - WEBSOCKER_ENABLED=true
+      - SIGNUPS_ALLOWED=false #this was added after the first vaultwarden account was created
+    volumes:
+      - ./vaultwarden:/data/
