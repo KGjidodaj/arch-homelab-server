@@ -46,7 +46,7 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: "100"
+        max-size: "100m"
         max-file: "3"
 
   duckdns:
@@ -74,7 +74,7 @@ services:
     restart: unless-stopped
     ports:
       - '80:80'
-      - '81:81'
+#      - '81:81'
       - '443:443'
     environment:
       - TZ=Europe/Athens
@@ -87,7 +87,8 @@ services:
     container_name: vaultwarden
     restart: unless-stopped
     environment:
-      - WEBSOCKER_ENABLED=true
+      - WEBSOCKET_ENABLED=true
       - SIGNUPS_ALLOWED=false #this was added after the first vaultwarden account was created
     volumes:
       - ./vaultwarden:/data/
+
