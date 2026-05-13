@@ -11,6 +11,7 @@ pihole/
 wireguard/
 nginx/
 vaultwarden/
+uptime-kuma-data/
 
 ##in case of other os and logs
 *.log

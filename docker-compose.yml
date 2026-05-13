@@ -92,3 +92,10 @@ services:
     volumes:
       - ./vaultwarden:/data/
 
+  uptime-kuma:
+    image: louislam/uptime-kuma:latest
+    container_name: uptime-kuma
+    restart: unless-stopped
+    volumes:
+      - ./uptime-kuma-data:/app/data
+
