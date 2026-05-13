@@ -1,7 +1,7 @@
 #Every variable is specified in the .env file
 services:
   pihole:
-    image: pihole/pihole:latest
+    image: pihole/pihole:2026.04.1
     container_name: pihole
     environment:
       FTLCONF_misc_tz: ${TIMEZONE}
@@ -11,7 +11,6 @@ services:
     ports:
       - "53:53/tcp"
       - "53:53/udp"
-     #maybe useless anymore - "8080:80/tcp"
     depends_on:
       - dnsproxy
     restart: unless-stopped
@@ -22,7 +21,7 @@ services:
         max-file: "3"
 
   wireguard:
-    image: lscr.io/linuxserver/wireguard:latest
+    image: lscr.io/linuxserver/wireguard:1.0.20250521-r1-ls111
     container_name: wireguard
     cap_add: #Giving capabilities only needed to run not more 
       - NET_ADMIN
@@ -50,7 +49,7 @@ services:
         max-file: "3"
 
   duckdns:
-    image: lscr.io/linuxserver/duckdns:latest
+    image: lscr.io/linuxserver/duckdns:00e777e2-ls79
     container_name: duckdns
     environment:
       - PUID=1000
@@ -62,7 +61,7 @@ services:
 
   dnsproxy:
     container_name: dnsproxy
-    image: adguard/dnsproxy:latest
+    image: adguard/dnsproxy:v0.81.3
     command: -u https://dns.quad9.net/dns-query -b 0.0.0.0 -p 5053 --bootstrap 9.9.9.9
     environment:
       - TZ=Europe/Athens
@@ -70,11 +69,10 @@ services:
 
   nginx-proxy-manager:
     container_name: nginx-proxy-manager
-    image: 'jc21/nginx-proxy-manager:latest'
+    image: 'jc21/nginx-proxy-manager:2.14'
     restart: unless-stopped
     ports:
       - '80:80'
-#      - '81:81'
       - '443:443'
     environment:
       - TZ=Europe/Athens
@@ -83,7 +81,7 @@ services:
       - ./nginx/letsencrypt:/etc/letsencrypt
 
   vaultwarden:
-    image: vaultwarden/server:latest
+    image: vaultwarden/server:1.36.0
     container_name: vaultwarden
     restart: unless-stopped
     environment:
@@ -93,7 +91,7 @@ services:
       - ./vaultwarden:/data/
 
   uptime-kuma:
-    image: louislam/uptime-kuma:latest
+    image: louislam/uptime-kuma:1.24
     container_name: uptime-kuma
     restart: unless-stopped
     volumes:
