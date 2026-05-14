@@ -1,7 +1,7 @@
 #Every variable is specified in the .env file
 services:
   pihole:
-    image: pihole/pihole:2026.04.1
+    image: pihole/pihole:2026.05.0
     container_name: pihole
     environment:
       FTLCONF_misc_tz: ${TIMEZONE}
@@ -21,7 +21,7 @@ services:
         max-file: "3"
 
   wireguard:
-    image: lscr.io/linuxserver/wireguard:1.0.20250521-r1-ls111
+    image: lscr.io/linuxserver/wireguard:latest
     container_name: wireguard
     cap_add: #Giving capabilities only needed to run not more 
       - NET_ADMIN
@@ -49,7 +49,7 @@ services:
         max-file: "3"
 
   duckdns:
-    image: lscr.io/linuxserver/duckdns:00e777e2-ls79
+    image: lscr.io/linuxserver/duckdns:latest
     container_name: duckdns
     environment:
       - PUID=1000
@@ -61,7 +61,7 @@ services:
 
   dnsproxy:
     container_name: dnsproxy
-    image: adguard/dnsproxy:v0.81.3
+    image: adguard/dnsproxy:latest
     command: -u https://dns.quad9.net/dns-query -b 0.0.0.0 -p 5053 --bootstrap 9.9.9.9
     environment:
       - TZ=Europe/Athens
@@ -69,7 +69,7 @@ services:
 
   nginx-proxy-manager:
     container_name: nginx-proxy-manager
-    image: 'jc21/nginx-proxy-manager:2.14'
+    image: 'jc21/nginx-proxy-manager:2'
     restart: unless-stopped
     ports:
       - '80:80'
@@ -81,7 +81,7 @@ services:
       - ./nginx/letsencrypt:/etc/letsencrypt
 
   vaultwarden:
-    image: vaultwarden/server:1.36.0
+    image: vaultwarden/server:latest
     container_name: vaultwarden
     restart: unless-stopped
     environment:
@@ -91,9 +91,24 @@ services:
       - ./vaultwarden:/data/
 
   uptime-kuma:
-    image: louislam/uptime-kuma:1.24
+    image: louislam/uptime-kuma:2
     container_name: uptime-kuma
     restart: unless-stopped
     volumes:
       - ./uptime-kuma-data:/app/data
+
+
+  dashy:
+    image: lissy93/dashy:4.0.8
+    container_name: dashy
+    volumes:
+      - ./dashy/conf.yml:/app/public/conf.yml
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+
+
+
+
+
 
