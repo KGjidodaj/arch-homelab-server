@@ -102,7 +102,7 @@ services:
     image: lissy93/dashy:4.0.8
     container_name: dashy
     volumes:
-      - ./dashy/conf.yml:/app/public/conf.yml
+      - ./dashy/user-data:/app/user-data
     environment:
       - NODE_ENV=production
     restart: unless-stopped
