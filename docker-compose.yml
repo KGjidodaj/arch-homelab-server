@@ -70,7 +70,6 @@ services:
   nginx-proxy-manager:
     container_name: nginx-proxy-manager
     image: 'jc21/nginx-proxy-manager:2'
-    restart: unless-stopped
     ports:
       - '80:80'
       - '443:443'
@@ -79,6 +78,7 @@ services:
     volumes: #in any case for the ssl certificate to not be lost
       - ./nginx/data:/data
       - ./nginx/letsencrypt:/etc/letsencrypt
+    restart: unless-stopped
 
   vaultwarden:
     image: vaultwarden/server:latest
@@ -108,7 +108,14 @@ services:
     restart: unless-stopped
 
 
-
-
+  dozzle:
+    image: amir20/dozzle:v10
+    container_name: dozzle
+    environment:
+      - DOZZLE_AUTH_PROVIDER=simple
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro #(:ro) read-only
+      - ./dozzle/data:/data
+    restart: unless-stopped
 
 
