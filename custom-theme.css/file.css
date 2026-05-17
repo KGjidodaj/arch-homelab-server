@@ -1,0 +1,974 @@
+/* ================================================================
+   KRIS.LAB — DASHY CUSTOM THEME  v4.0
+   Aesthetic: Kali Linux / Terminal Dark / Cybersec Ops
+   Mount at:  /app/public/custom-theme.css
+
+   FIXES IN THIS VERSION:
+   · Removed snake/breathing animation on section borders
+   · Background animations now actually visible (z-index fixed)
+   · CVE description text hidden — compact card rows only
+   · Transparent Dashy wrappers so background layer renders
+   · Google Fonts fallback: if container has no internet,
+     JetBrains Mono falls back to system monospace cleanly.
+   ================================================================ */
+
+/* ── 0. FONTS ──────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,200;0,300;0,400;0,500;0,600;1,300&family=Syne:wght@400;500;600;700&display=swap');
+
+/* ── 1. DESIGN TOKENS ──────────────────────────────────────── */
+:root {
+  --bg-void:        #06060b;
+  --bg-base:        #09090f;
+  --bg-surface:     #0d0d17;
+  --bg-raised:      #111120;
+  --bg-overlay:     #161626;
+
+  --border-dim:     #141428;
+  --border-mid:     #1e1e38;
+  --border-hi:      #2a2a4a;
+
+  --tx-primary:     #c8c8de;
+  --tx-secondary:   #585870;
+  --tx-muted:       #282840;
+  --tx-accent:      #7fa8ff;
+  --tx-bright:      #e6e6ff;
+
+  --accent:         #4169e1;
+  --accent-light:   #7fa8ff;
+  --accent-dim:     rgba(65, 105, 225, 0.10);
+  --accent-glow:    rgba(65, 105, 225, 0.20);
+  --accent-glow-hi: rgba(65, 105, 225, 0.45);
+
+  --cyan:           #00c0d8;
+  --cyan-glow:      rgba(0, 192, 216, 0.25);
+
+  --ok:             #22c55e;
+  --ok-glow:        rgba(34, 197, 94, 0.48);
+  --warn:           #f59e0b;
+  --warn-glow:      rgba(245, 158, 11, 0.38);
+  --err:            #f43f5e;
+  --err-dim:        rgba(244, 63, 94, 0.10);
+  --err-glow:       rgba(244, 63, 94, 0.48);
+
+  --r-sm: 2px;
+  --r-md: 4px;
+
+  --ease-out:  cubic-bezier(0.16, 1, 0.3, 1);
+  --t-snap:    70ms;
+  --t-fast:    150ms;
+  --t-mid:     260ms;
+  --t-slow:    450ms;
+
+  --font-ui:   'Syne', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', ui-monospace, monospace;
+}
+
+/* ── 2. GLOBAL BASE ────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; color-scheme: dark; }
+
+body {
+  /* Solid dark base that the animated layer sits on top of */
+  background-color:        var(--bg-void) !important;
+  color:                   var(--tx-primary) !important;
+  font-family:             var(--font-ui) !important;
+  -webkit-font-smoothing:  antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  overflow-x:              hidden !important;
+  position:                relative !important;
+}
+
+/* ================================================================
+   ANIMATED BACKGROUND
+   The trick: body is the darkest layer. body::before is the
+   animated dot-grid at z-index 0. All Dashy wrapper divs are
+   set to transparent so the animation shows through them.
+   ================================================================ */
+
+/* Animated dot grid — slow, barely-there, clearly visible */
+body::before {
+  content:        '';
+  position:       fixed;
+  inset:          0;
+  z-index:        0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at center, rgba(65,105,225,0.22) 1px, transparent 1px);
+  background-size: 36px 36px;
+  animation:      dot-drift 70s linear infinite;
+}
+
+@keyframes dot-drift {
+  0%   { background-position: 0px 0px; }
+  100% { background-position: 72px 36px; }
+}
+
+/* Top blue aurora glow — breathes slowly */
+body::after {
+  content:        '';
+  position:       fixed;
+  inset:          0;
+  z-index:        0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 110% 45% at 50% -8%,
+      rgba(65,105,225,0.09) 0%,
+      transparent 68%),
+    radial-gradient(ellipse 55% 25% at 15% 105%,
+      rgba(0,192,216,0.05) 0%,
+      transparent 65%);
+  animation: aurora-breathe 20s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-breathe {
+  0%   { opacity: 0.50; transform: scaleX(1.00) translateY(0px); }
+  50%  { opacity: 1.00; transform: scaleX(1.20) translateY(-8px); }
+  100% { opacity: 0.60; transform: scaleX(0.90) translateY(4px); }
+}
+
+/* Make ALL Dashy wrapper layers transparent so body animation shows */
+#app,
+#dashy-root,
+.main-wrapper,
+.home,
+main,
+.dashboard,
+.home-body,
+.dashboard-inner,
+.columns,
+.section-grid {
+  background: transparent !important;
+  position:   relative !important;
+  z-index:    1 !important;
+}
+
+/* ── 3. SCROLLBARS ─────────────────────────────────────────── */
+::-webkit-scrollbar          { width: 3px; height: 3px; }
+::-webkit-scrollbar-track    { background: var(--bg-void); }
+::-webkit-scrollbar-thumb    { background: var(--border-mid); border-radius: 2px; transition: background var(--t-fast); }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ── 4. SECTION ENTRANCE ───────────────────────────────────── */
+@keyframes section-enter {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.section-wrapper, .item-group-container {
+  animation: section-enter var(--t-slow) var(--ease-out) both;
+}
+
+.section-wrapper:nth-child(1), .item-group-container:nth-child(1) { animation-delay:   0ms; }
+.section-wrapper:nth-child(2), .item-group-container:nth-child(2) { animation-delay:  80ms; }
+.section-wrapper:nth-child(3), .item-group-container:nth-child(3) { animation-delay: 160ms; }
+.section-wrapper:nth-child(4), .item-group-container:nth-child(4) { animation-delay: 240ms; }
+.section-wrapper:nth-child(5), .item-group-container:nth-child(5) { animation-delay: 320ms; }
+.section-wrapper:nth-child(6), .item-group-container:nth-child(6) { animation-delay: 400ms; }
+
+/* ── 5. NAV BAR ────────────────────────────────────────────── */
+#nav-bar, .nav-bar, nav.navbar, nav {
+  background:    rgba(6, 6, 11, 0.92) !important;
+  border-bottom: 1px solid var(--border-dim) !important;
+  box-shadow:    none !important;
+  position:      sticky !important;
+  top:           0 !important;
+  z-index:       200 !important;
+  backdrop-filter: blur(12px) !important;
+}
+
+/* Sweeping light on nav bottom edge */
+#nav-bar::after, .nav-bar::after, nav::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent  0%,
+    var(--accent) 22%,
+    var(--cyan)   50%,
+    var(--accent) 78%,
+    transparent  100%
+  );
+  background-size: 220% 100%;
+  animation: nav-sweep 9s linear infinite;
+  opacity: 0.55;
+}
+
+@keyframes nav-sweep {
+  0%   { background-position:  200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Site title */
+#nav-bar .site-name, .nav-bar .site-name, .page-title, nav .title {
+  font-family:    var(--font-mono) !important;
+  font-size:      0.75rem !important;
+  font-weight:    500 !important;
+  letter-spacing: 0.22em !important;
+  text-transform: uppercase !important;
+  color:          var(--tx-primary) !important;
+}
+
+/* Blinking terminal cursor */
+#nav-bar .site-name::after, .page-title::after {
+  content:     '_';
+  color:       var(--accent-light);
+  margin-left: 1px;
+  animation:   blink 1.1s step-end infinite;
+}
+
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 99% { opacity: 0; }
+}
+
+/* Nav links */
+.nav-link, #nav-bar a:not([class]), .navbar a {
+  font-family:     var(--font-mono) !important;
+  font-size:       0.64rem !important;
+  letter-spacing:  0.10em !important;
+  text-transform:  uppercase !important;
+  color:           var(--tx-secondary) !important;
+  text-decoration: none !important;
+  position:        relative !important;
+  transition:      color var(--t-fast) var(--ease-out) !important;
+}
+
+.nav-link::after, #nav-bar a:not([class])::after {
+  content: '';
+  position: absolute;
+  bottom: -3px; left: 0;
+  width: 0; height: 1px;
+  background: var(--accent);
+  transition: width var(--t-mid) var(--ease-out);
+}
+
+.nav-link:hover, #nav-bar a:not([class]):hover { color: var(--accent-light) !important; }
+.nav-link:hover::after, #nav-bar a:not([class]):hover::after { width: 100%; }
+
+/* ── 6. LAYOUT SPACING ─────────────────────────────────────── */
+.home-body, .dashboard-inner, .section-grid, .columns {
+  gap:     14px !important;
+  padding: 16px 18px 48px !important;
+}
+
+/* ── 7. SECTION CARD ───────────────────────────────────────── */
+.section-wrapper, .item-group-container {
+  background:    rgba(13, 13, 23, 0.88) !important;
+  border:        1px solid var(--border-dim) !important;
+  border-radius: var(--r-md) !important;
+  overflow:      hidden !important;
+  position:      relative !important;
+  backdrop-filter: blur(4px) !important;
+  transition:
+    border-color var(--t-mid) var(--ease-out),
+    box-shadow   var(--t-mid) var(--ease-out) !important;
+}
+
+.section-wrapper:hover, .item-group-container:hover {
+  border-color: var(--border-mid) !important;
+  box-shadow:   0 0 30px rgba(65,105,225,0.08),
+                0 4px 16px rgba(0,0,0,0.45) !important;
+}
+
+/* Static left accent bar — no snake animation, just a clean gradient */
+.section-wrapper::before, .item-group-container::before {
+  content:        '';
+  position:       absolute;
+  top: 0; left: 0;
+  width:          2px;
+  height:         100%;
+  background:     linear-gradient(180deg,
+    var(--accent)  0%,
+    var(--cyan)   55%,
+    transparent   100%
+  );
+  opacity:        0.28;
+  pointer-events: none;
+  transition:     opacity var(--t-mid) var(--ease-out);
+  /* NO animation — this was the "snake" the user disliked */
+}
+
+.section-wrapper:hover::before, .item-group-container:hover::before {
+  opacity: 0.75;
+}
+
+/* ── 8. SECTION HEADER ─────────────────────────────────────── */
+.title-container, .section-header, .item-group-title {
+  background:    rgba(65,105,225,0.04) !important;
+  border-bottom: 1px solid var(--border-dim) !important;
+  padding:       9px 14px 9px 16px !important;
+  display:       flex !important;
+  align-items:   center !important;
+  gap:           8px !important;
+  position:      relative !important;
+  overflow:      hidden !important;
+}
+
+/* Scan-line sweep — once every 7s, not constant  */
+.title-container::after {
+  content:        '';
+  position:       absolute;
+  top: 0; left: -70%;
+  width:          55%;
+  height:         100%;
+  background:     linear-gradient(90deg,
+    transparent, rgba(65,105,225,0.09), rgba(0,192,216,0.04), transparent
+  );
+  animation:      header-scan 8s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes header-scan {
+  0%   { left: -70%; }
+  38%, 100% { left: 170%; }
+}
+
+/* Section title */
+.title-container h2, .section-name, h2.title, .item-group-title span {
+  font-family:    var(--font-mono) !important;
+  font-size:      0.63rem !important;
+  font-weight:    500 !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  color:          var(--tx-secondary) !important;
+  transition:     color var(--t-fast) var(--ease-out) !important;
+}
+
+.section-wrapper:hover .section-name,
+.section-wrapper:hover h2.title,
+.item-group-container:hover .title-container h2 {
+  color: var(--tx-accent) !important;
+}
+
+/* Section icon */
+.section-icon, h2.title i, .title-container i {
+  color:      var(--accent) !important;
+  opacity:    0.48 !important;
+  font-size:  0.73rem !important;
+  transition: opacity var(--t-fast),
+              transform var(--t-mid) var(--ease-out) !important;
+}
+
+.section-wrapper:hover .section-icon,
+.item-group-container:hover .title-container i {
+  opacity:   0.95 !important;
+  transform: rotate(7deg) scale(1.14) !important;
+}
+
+/* ── 9. ITEM GRID ──────────────────────────────────────────── */
+.items-wrapper, .item-group .items, .section-items {
+  padding: 8px !important;
+  gap:     6px !important;
+  display: grid !important;
+}
+
+/* Item entrance stagger */
+@keyframes item-enter {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.item-wrapper {
+  animation: item-enter var(--t-mid) var(--ease-out) both;
+  padding: 0 !important;
+}
+
+.item-wrapper:nth-child(1) { animation-delay:  20ms; }
+.item-wrapper:nth-child(2) { animation-delay:  50ms; }
+.item-wrapper:nth-child(3) { animation-delay:  80ms; }
+.item-wrapper:nth-child(4) { animation-delay: 110ms; }
+.item-wrapper:nth-child(5) { animation-delay: 140ms; }
+
+/* ── 10. ITEM CARD ─────────────────────────────────────────── */
+.item, .tile, a.item {
+  background:      rgba(17, 17, 32, 0.80) !important;
+  border:          1px solid var(--border-dim) !important;
+  border-radius:   var(--r-sm) !important;
+  padding:         10px 12px !important;
+  display:         flex !important;
+  align-items:     center !important;
+  gap:             10px !important;
+  text-decoration: none !important;
+  cursor:          pointer !important;
+  position:        relative !important;
+  overflow:        hidden !important;
+  box-shadow:      none !important;
+  transition:
+    background   var(--t-fast) var(--ease-out),
+    border-color var(--t-fast) var(--ease-out),
+    box-shadow   var(--t-mid)  var(--ease-out),
+    transform    var(--t-fast) var(--ease-out) !important;
+}
+
+.item:hover, .tile:hover {
+  background:   rgba(22, 22, 38, 0.92) !important;
+  border-color: var(--border-hi) !important;
+  box-shadow:   0 0 0 1px var(--accent-glow),
+                0 6px 28px rgba(0,0,0,0.55) !important;
+  transform:    translateX(3px) !important;
+}
+
+.item:active, .tile:active {
+  transform:        translateX(3px) scale(0.988) !important;
+  transition-duration: var(--t-snap) !important;
+}
+
+/* Photon shimmer sweep on hover */
+.item::after, .tile::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -120%;
+  width: 55%; height: 100%;
+  background: linear-gradient(90deg,
+    transparent,
+    rgba(65,105,225,0.06),
+    rgba(0,192,216,0.03),
+    transparent
+  );
+  transition: left 0.55s var(--ease-out);
+  pointer-events: none;
+}
+
+.item:hover::after, .tile:hover::after { left: 160%; }
+
+/* ── 11. ITEM ICON ─────────────────────────────────────────── */
+.item-icon, .tile-icon, .item img.item-icon {
+  width:         32px !important;
+  height:        32px !important;
+  flex-shrink:   0 !important;
+  border-radius: var(--r-sm) !important;
+  filter:        saturate(0.35) brightness(0.68) !important;
+  transition:
+    filter    var(--t-mid) var(--ease-out),
+    transform var(--t-mid) var(--ease-out) !important;
+}
+
+.item:hover .item-icon, .item:hover .tile-icon, .item:hover img.item-icon {
+  filter:    saturate(1) brightness(1.06) !important;
+  transform: scale(1.10) rotate(-3deg) !important;
+}
+
+.item .icon-wrapper i, .item-icon-text {
+  font-size:  1.05rem !important;
+  color:      var(--tx-muted) !important;
+  transition: color var(--t-fast),
+              transform var(--t-mid) var(--ease-out) !important;
+}
+
+.item:hover .icon-wrapper i, .item:hover .item-icon-text {
+  color:     var(--accent-light) !important;
+  transform: scale(1.12) !important;
+}
+
+/* ── 12. ITEM TEXT ─────────────────────────────────────────── */
+.item-text-container, .item-info {
+  display:        flex !important;
+  flex-direction: column !important;
+  gap:            2px !important;
+  min-width:      0 !important;
+  flex:           1 !important;
+}
+
+.tile-title, .item-title, h3.tile-title {
+  font-family:    var(--font-ui) !important;
+  font-size:      0.80rem !important;
+  font-weight:    500 !important;
+  letter-spacing: 0.02em !important;
+  color:          var(--tx-primary) !important;
+  white-space:    nowrap !important;
+  overflow:       hidden !important;
+  text-overflow:  ellipsis !important;
+  transition:     color var(--t-fast) var(--ease-out) !important;
+}
+
+.item:hover .tile-title, .item:hover .item-title { color: var(--tx-bright) !important; }
+
+.item-description, .tile-description {
+  font-family:    var(--font-mono) !important;
+  font-size:      0.61rem !important;
+  font-weight:    300 !important;
+  color:          var(--tx-muted) !important;
+  white-space:    nowrap !important;
+  overflow:       hidden !important;
+  text-overflow:  ellipsis !important;
+  transition:     color var(--t-fast) var(--ease-out) !important;
+}
+
+.item:hover .item-description, .item:hover .tile-description { color: var(--tx-secondary) !important; }
+
+/* ── 13. STATUS INDICATOR ──────────────────────────────────── */
+.status-indicator, .item-badge, .item .status-dot {
+  width:         7px !important;
+  height:        7px !important;
+  border-radius: 50% !important;
+  flex-shrink:   0 !important;
+  margin-left:   auto !important;
+  position:      relative !important;
+}
+
+/* Online — ripple ring */
+.status-indicator.online, .status-indicator.success {
+  background: var(--ok) !important;
+  box-shadow: 0 0 8px var(--ok-glow) !important;
+}
+
+.status-indicator.online::after, .status-indicator.success::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid var(--ok);
+  animation: ripple-ok 2.6s ease-out infinite;
+}
+
+@keyframes ripple-ok {
+  0%   { transform: scale(0.85); opacity: 0.85; }
+  100% { transform: scale(2.6);  opacity: 0; }
+}
+
+/* Offline — pulse */
+.status-indicator.offline, .status-indicator.error {
+  background: var(--err) !important;
+  box-shadow: 0 0 8px var(--err-glow) !important;
+  animation:  err-pulse 1.4s ease-in-out infinite !important;
+}
+
+@keyframes err-pulse {
+  0%, 100% { opacity: 1;   box-shadow: 0 0 8px var(--err-glow); }
+  50%       { opacity: 0.3; box-shadow: 0 0 2px var(--err-glow); }
+}
+
+/* Unknown */
+.status-indicator.unknown, .status-indicator.loading {
+  background: var(--tx-muted) !important;
+  animation:  unknown-blink 2.2s ease-in-out infinite !important;
+}
+
+@keyframes unknown-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.12; }
+}
+
+/* ── 14. SEARCH BAR ────────────────────────────────────────── */
+#search-bar, .search-container, .type-ahead, .search input, input[type="search"] {
+  background:     rgba(6,6,11,0.85) !important;
+  border:         1px solid var(--border-dim) !important;
+  border-radius:  var(--r-sm) !important;
+  color:          var(--tx-primary) !important;
+  font-family:    var(--font-mono) !important;
+  font-size:      0.73rem !important;
+  letter-spacing: 0.05em !important;
+  outline:        none !important;
+  transition:
+    border-color var(--t-fast) var(--ease-out),
+    box-shadow   var(--t-fast) var(--ease-out) !important;
+}
+
+#search-bar:focus, .search-container:focus-within, .search input:focus {
+  border-color: var(--accent) !important;
+  box-shadow:   0 0 0 2px var(--accent-glow),
+                0 0 16px var(--accent-glow) !important;
+}
+
+#search-bar::placeholder, .search input::placeholder {
+  color:      var(--tx-muted) !important;
+  font-style: italic !important;
+}
+
+/* ── 15. WIDGETS ───────────────────────────────────────────── */
+.widget-base, .dashy-widget, .widget-wrapper, .widget {
+  background:  transparent !important;
+  color:       var(--tx-primary) !important;
+  font-family: var(--font-mono) !important;
+  padding:     6px 2px !important;
+  animation:   widget-fade 0.6s var(--ease-out) 0.4s both;
+}
+
+@keyframes widget-fade {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Big stat numbers */
+.widget-value, .stat-count, .count, .stat-number, .number {
+  font-family:    var(--font-mono) !important;
+  font-size:      1.50rem !important;
+  font-weight:    200 !important;
+  color:          var(--accent-light) !important;
+  letter-spacing: 0.06em !important;
+  animation:      stat-pop 0.9s var(--ease-out) 0.55s both;
+}
+
+@keyframes stat-pop {
+  0%   { opacity: 0; transform: translateY(6px); color: var(--cyan); }
+  55%  { color: var(--cyan); }
+  100% { opacity: 1; transform: translateY(0);   color: var(--accent-light); }
+}
+
+/* Stat labels */
+.widget-label, .stat-label, .label {
+  font-family:    var(--font-mono) !important;
+  font-size:      0.57rem !important;
+  letter-spacing: 0.15em !important;
+  text-transform: uppercase !important;
+  color:          var(--tx-muted) !important;
+}
+
+/* Pi-hole row hover */
+.pi-hole-widget .stat, .pihole-stats .row, .widget .data-row {
+  border-bottom: 1px solid var(--border-dim) !important;
+  padding:       5px 0 !important;
+  transition:    background var(--t-fast), padding-left var(--t-fast) !important;
+}
+
+.pi-hole-widget .stat:hover, .widget .data-row:hover {
+  background:   var(--accent-dim) !important;
+  padding-left: 5px !important;
+}
+
+/* Public IP — terminal-refresh flicker */
+.public-ip-widget .ip-address, .public-ip-address, .widget [class*="ip-address"] {
+  font-family:    var(--font-mono) !important;
+  font-size:      1.05rem !important;
+  letter-spacing: 0.08em !important;
+  color:          var(--cyan) !important;
+  animation:      ip-flicker 14s ease-in-out infinite;
+}
+
+@keyframes ip-flicker {
+  0%, 91%, 100% { opacity: 1; }
+  92%            { opacity: 0.2; }
+  93%            { opacity: 1; }
+  95%            { opacity: 0.5; }
+  96%            { opacity: 1; }
+}
+
+/* Uptime Kuma rows */
+.uptime-monitor-item, .uptime-kuma-widget .monitor {
+  background:    rgba(6,6,11,0.60) !important;
+  border:        1px solid var(--border-dim) !important;
+  border-radius: var(--r-sm) !important;
+  padding:       5px 9px !important;
+  margin-bottom: 4px !important;
+  font-size:     0.67rem !important;
+  transition:    border-color var(--t-fast), background var(--t-fast) !important;
+}
+
+.uptime-monitor-item:hover {
+  background:   rgba(17,17,32,0.85) !important;
+  border-color: var(--border-mid) !important;
+}
+
+/* ================================================================
+   CVE WIDGET — COMPACT MODE
+   Hides the paragraph description beneath each CVE title.
+   Only the score badge + CVE ID + date remain → much smaller.
+   Sorted highest→lowest by the widget's built-in sort (severityFilter
+   ensures only HIGH 7.0+ and CRITICAL 9.0+ entries appear).
+   ================================================================ */
+
+/* Hide verbose description text under each CVE entry */
+.cve-vulnerabilities-wrapper p,
+.cve-item p,
+.cve-item .description,
+.cve-item .summary,
+.cve-item span.text,
+[class*="cve"] p,
+[class*="vulnerability"] p.description,
+[class*="vulnerability"] .description,
+.widget .item-description,
+.dashy-widget p.desc {
+  display: none !important;
+}
+
+/* CVE row itself — compact */
+.cve-item, .vulnerability-item, [class*="cve-item"] {
+  border-bottom:  1px solid var(--border-dim) !important;
+  padding:        5px 2px !important;
+  font-size:      0.68rem !important;
+  display:        flex !important;
+  align-items:    center !important;
+  gap:            6px !important;
+  transition:     background var(--t-fast), padding-left var(--t-fast) !important;
+  cursor:         default !important;
+}
+
+.cve-item:hover, .vulnerability-item:hover {
+  background:   var(--err-dim) !important;
+  padding-left: 6px !important;
+}
+
+/* CVE ID text */
+.cve-item .cve-id, .cve-item a, [class*="cve"] a {
+  font-family:    var(--font-mono) !important;
+  font-size:      0.68rem !important;
+  color:          var(--tx-accent) !important;
+  text-decoration: none !important;
+}
+
+.cve-item a:hover { color: var(--tx-bright) !important; text-decoration: underline !important; }
+
+/* CVE score badges */
+.severity-score, .cve-score, [class*="severity"] span {
+  font-family:   var(--font-mono) !important;
+  font-size:     0.66rem !important;
+  font-weight:   600 !important;
+  padding:       1px 6px !important;
+  border-radius: var(--r-sm) !important;
+  white-space:   nowrap !important;
+}
+
+[data-severity="CRITICAL"] .severity-score,
+.severity-critical .score,
+.score-critical {
+  background: rgba(100,10,10,0.80) !important;
+  color:      var(--err) !important;
+  box-shadow: 0 0 6px rgba(244,63,94,0.25) !important;
+}
+
+[data-severity="HIGH"] .severity-score,
+.severity-high .score,
+.score-high {
+  background: rgba(100,50,10,0.80) !important;
+  color:      var(--warn) !important;
+  box-shadow: 0 0 6px rgba(245,158,11,0.20) !important;
+}
+
+[data-severity="MEDIUM"] .severity-score,
+.severity-medium .score,
+.score-medium {
+  background: rgba(65,65,10,0.80) !important;
+  color:      #facc15 !important;
+}
+
+/* ── 16. PROGRESS BARS ─────────────────────────────────────── */
+.progress-bar, .widget .bar, [class*="progress"] {
+  height: 2px !important;
+  background: var(--border-dim) !important;
+  border-radius: 2px !important;
+  overflow: hidden !important;
+  position: relative !important;
+}
+
+.progress-bar::after, .widget .bar::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, var(--accent), var(--cyan));
+  animation: progress-fill 1.3s var(--ease-out) 0.6s forwards;
+}
+
+@keyframes progress-fill {
+  from { left: -100%; }
+  to   { left: 0; }
+}
+
+/* ── 17. TAGS ──────────────────────────────────────────────── */
+.tag, .item-tag {
+  background:     rgba(65,105,225,0.09) !important;
+  border:         1px solid rgba(65,105,225,0.20) !important;
+  color:          var(--accent-light) !important;
+  font-family:    var(--font-mono) !important;
+  font-size:      0.57rem !important;
+  font-weight:    500 !important;
+  letter-spacing: 0.09em !important;
+  text-transform: uppercase !important;
+  padding:        1px 5px !important;
+  border-radius:  var(--r-sm) !important;
+  transition:     background var(--t-fast), border-color var(--t-fast), color var(--t-fast) !important;
+}
+
+.tag:hover, .item-tag:hover {
+  background:   rgba(65,105,225,0.18) !important;
+  border-color: var(--accent) !important;
+  color:        var(--tx-bright) !important;
+}
+
+/* ── 18. TOOLTIPS / CONTEXT MENU ───────────────────────────── */
+.tooltip, .context-menu, .dropdown-menu {
+  background:    rgba(22,22,38,0.97) !important;
+  border:        1px solid var(--border-mid) !important;
+  border-radius: var(--r-md) !important;
+  color:         var(--tx-primary) !important;
+  font-family:   var(--font-mono) !important;
+  font-size:     0.70rem !important;
+  box-shadow:    0 6px 36px rgba(0,0,0,0.85),
+                 0 0 0 1px rgba(65,105,225,0.08) !important;
+  animation:     tooltip-in 0.14s var(--ease-out) !important;
+}
+
+@keyframes tooltip-in {
+  from { opacity: 0; transform: translateY(-5px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+.context-menu-item, .dropdown-item {
+  transition: background var(--t-snap), color var(--t-snap), padding-left var(--t-snap) !important;
+}
+
+.context-menu-item:hover, .dropdown-item:hover {
+  background:   var(--accent-dim) !important;
+  color:        var(--accent-light) !important;
+  padding-left: 16px !important;
+}
+
+/* ── 19. MODALS ────────────────────────────────────────────── */
+.modal-wrapper, .dialog, [class*="modal-overlay"] {
+  background:      rgba(4,4,9,0.90) !important;
+  backdrop-filter: blur(10px) saturate(0.6) !important;
+  animation:       overlay-in 0.20s var(--ease-out) !important;
+}
+
+@keyframes overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.modal, .dialog-inner, [class*="modal-inner"] {
+  background:    rgba(13,13,23,0.97) !important;
+  border:        1px solid var(--border-mid) !important;
+  border-radius: var(--r-md) !important;
+  box-shadow:    0 12px 70px rgba(0,0,0,0.92),
+                 0 0 0 1px rgba(65,105,225,0.10) !important;
+  animation:     modal-in 0.26s var(--ease-out) !important;
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(22px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+/* ── 20. BUTTONS ───────────────────────────────────────────── */
+button, .btn {
+  font-family:    var(--font-mono) !important;
+  font-size:      0.67rem !important;
+  letter-spacing: 0.09em !important;
+  text-transform: uppercase !important;
+  border-radius:  var(--r-sm) !important;
+  border:         1px solid var(--border-mid) !important;
+  background:     var(--bg-raised) !important;
+  color:          var(--tx-secondary) !important;
+  cursor:         pointer !important;
+  position:       relative !important;
+  overflow:       hidden !important;
+  transition:
+    background   var(--t-fast) var(--ease-out),
+    border-color var(--t-fast) var(--ease-out),
+    color        var(--t-fast) var(--ease-out) !important;
+}
+
+button:hover, .btn:hover {
+  background:   var(--bg-overlay) !important;
+  border-color: var(--border-hi) !important;
+  color:        var(--tx-primary) !important;
+}
+
+/* Click ripple */
+button::after, .btn::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 0; height: 0;
+  background: rgba(65,105,225,0.22);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.45s var(--ease-out), height 0.45s var(--ease-out), opacity 0.45s;
+  opacity: 0;
+}
+
+button:active::after, .btn:active::after { width: 220%; height: 220%; opacity: 0; }
+
+.btn-primary, button[type="submit"] {
+  background:   var(--accent) !important;
+  border-color: var(--accent) !important;
+  color:        #fff !important;
+}
+
+.btn-primary:hover, button[type="submit"]:hover {
+  background: var(--accent-light) !important;
+  box-shadow: 0 0 18px var(--accent-glow-hi) !important;
+}
+
+/* ── 21. INPUTS ────────────────────────────────────────────── */
+input:not([type="search"]), select, textarea {
+  background:    rgba(6,6,11,0.85) !important;
+  border:        1px solid var(--border-dim) !important;
+  border-radius: var(--r-sm) !important;
+  color:         var(--tx-primary) !important;
+  font-family:   var(--font-mono) !important;
+  font-size:     0.73rem !important;
+  outline:       none !important;
+  transition:    border-color var(--t-fast), box-shadow var(--t-fast) !important;
+}
+
+input:not([type="search"]):focus, select:focus, textarea:focus {
+  border-color: var(--accent) !important;
+  box-shadow:   0 0 0 2px var(--accent-glow), 0 0 12px var(--accent-glow) !important;
+}
+
+/* ── 22. LOADING / SPLASH ──────────────────────────────────── */
+#splash-screen, .loading-screen { background: var(--bg-void) !important; }
+
+.loading-spinner, .loader {
+  border-color:     var(--border-mid) !important;
+  border-top-color: var(--accent) !important;
+  filter:           drop-shadow(0 0 6px var(--accent-glow)) !important;
+}
+
+/* ── 23. FOOTER — HIDDEN ───────────────────────────────────── */
+footer, #footer, .footer { display: none !important; }
+
+/* ── 24. PAGE HEADER ───────────────────────────────────────── */
+.page-header, .header-wrapper, .sub-header {
+  background: transparent !important;
+  border:     none !important;
+  padding:    8px 20px 0 !important;
+}
+
+.page-description, .sub-header p {
+  font-family:    var(--font-mono) !important;
+  font-size:      0.61rem !important;
+  color:          var(--tx-muted) !important;
+  letter-spacing: 0.11em !important;
+  text-transform: uppercase !important;
+}
+
+/* ── 25. MISC ──────────────────────────────────────────────── */
+a {
+  color:           var(--accent-light) !important;
+  text-decoration: none !important;
+  transition:      color var(--t-fast) !important;
+}
+a:hover { color: var(--tx-bright) !important; }
+
+hr, .divider {
+  border:     none !important;
+  border-top: 1px solid var(--border-dim) !important;
+  margin:     6px 0 !important;
+}
+
+::selection { background: rgba(65,105,225,0.28); color: var(--tx-bright); }
+
+:focus-visible {
+  outline:        1px solid var(--accent) !important;
+  outline-offset: 2px !important;
+  border-radius:  var(--r-sm) !important;
+}
+
+img:not(.item-icon):not(.tile-icon):not([class*="icon"]) {
+  filter:     brightness(0.80) saturate(0.60);
+  transition: filter var(--t-mid) var(--ease-out);
+}
+
+/* ── 26. REDUCED MOTION SAFETY ─────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:        0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration:       0.01ms !important;
+  }
+  body::before, body::after { animation: none !important; }
+}

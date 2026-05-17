@@ -87,6 +87,7 @@ services:
     environment:
       - WEBSOCKET_ENABLED=true
       - SIGNUPS_ALLOWED=false #this was added after the first vaultwarden account was created
+      - EXTENDED_LOGGING=true
     volumes:
       - ./vaultwarden:/data/
 
@@ -103,6 +104,7 @@ services:
     container_name: dashy
     volumes:
       - ./dashy/user-data:/app/user-data
+      - ./custom-theme.css:/app/public/custom-theme.css:ro
     environment:
       - NODE_ENV=production
     restart: unless-stopped
@@ -117,5 +119,3 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro #(:ro) read-only
       - ./dozzle/data:/data
     restart: unless-stopped
-
-
