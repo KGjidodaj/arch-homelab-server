@@ -62,7 +62,7 @@ services:
   dnsproxy:
     container_name: dnsproxy
     image: adguard/dnsproxy:latest
-    command: -u https://dns.quad9.net/dns-query -b 0.0.0.0 -p 5053 --bootstrap 9.9.9.9
+    command: -l 0.0.0.0 -p 5053 -u https://dns.quad9.net/dns-query -b 9.9.9.9
     environment:
       - TZ=Europe/Athens
     restart: unless-stopped
@@ -100,7 +100,7 @@ services:
 
 
   dashy:
-    image: lissy93/dashy:4.0.8
+    image: lissy93/dashy:4.x
     container_name: dashy
     volumes:
       - ./dashy/user-data:/app/user-data
@@ -115,7 +115,21 @@ services:
     container_name: dozzle
     environment:
       - DOZZLE_AUTH_PROVIDER=simple
+      - DOCKER_HOST=tcp://socket-proxy:2375
+    depends_on:
+      - socket-proxy
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro #(:ro) read-only
       - ./dozzle/data:/data
+    restart: unless-stopped
+
+  socket-proxy:
+    image: tecnativa/docker-socket-proxy:v0.4.2
+    container_name: socket-proxy
+    environment:
+    #setting up dozzle capabilitities
+      - CONTAINERS=1
+      - INFO=1
+      - POST=0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
     restart: unless-stopped
