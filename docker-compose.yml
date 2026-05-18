@@ -104,7 +104,6 @@ services:
     container_name: dashy
     volumes:
       - ./containers/dashy/user-data:/app/user-data
-      - ./containers/custom-theme.css:/app/public/custom-theme.css:ro
     environment:
       - NODE_ENV=production
     restart: unless-stopped

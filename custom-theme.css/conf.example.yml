@@ -1,0 +1,184 @@
+---
+#   USER.LAB — DASHY CONFIGURATION
+#   Image: lissy93/dashy:4.x (automatic minor updates)
+
+pageInfo:
+  title: "USER.LAB"
+  description: "DevSecOps Command Center"
+  navLinks:
+    - title: "GitHub"
+      path: "https://github.com/username"
+      target: "newtab"
+    - title: "Status"
+      path: "https://uptime-domain/status/status-page"
+      target: "newtab"
+
+appConfig:
+  theme: "one-dark"
+  layout: "auto"
+  iconSize: "medium"
+  language: "en"
+  startingView: "default"
+  defaultOpeningMethod: "newtab"
+  statusCheck: false
+  disableConfiguration: false
+  disableUpdateChecks: false
+
+  webSearch:
+    disableWebSearch: true
+
+  hideComponents:
+    hideFooter: true
+    hideSearch: false
+    hideSplashScreen: true
+
+  externalStyleSheet:
+    - "/custom-theme.css" # or wherever custom-theme.css is saved
+
+  auth:
+    users:
+      - user: "user"
+        hash: "some_hash"
+        type: "admin"
+
+sections:
+
+  # ── 1. Security & Access Control ──────────────────────────
+  - name: "Security & Access Control"
+    icon: "fas fa-shield-alt"
+    displayData:
+      sortBy: "default"
+      rows: 1
+      cols: 1
+      collapsed: false
+      hideForGuests: false
+    items:
+      - title: "CrowdSec Console"
+        description: "Behavioral IPS / Firewall Bouncer Alerts"
+        icon: "hl-crowdsec"
+        url: "https://app.crowdsec.net..." #cloud crowdsec domain
+        target: "newtab"
+
+      - title: "Pi-hole"
+        description: "Network-wide DNS Ad & Tracker Blocking"
+        icon: "si-pihole"
+        url: "https://pihole-domain/admin"
+        target: "newtab"
+
+      - title: "Vaultwarden"
+        description: "Self-hosted Bitwarden — Encrypted Password Vault"
+        icon: "hl-bitwarden"
+        url: "https://vault-domain"
+        target: "newtab"
+
+  # ── 2. Network Intelligence (Widgets) ──────────────────────
+  - name: "Network Intelligence"
+    icon: "fas fa-satellite-dish"
+    displayData:
+      cols: 2
+      collapsed: false
+
+    items:
+      - title: "Public IP"
+        description: "WAN Egress Address & ASN Info"
+        icon: "fas fa-globe"
+        url: ""
+
+      - title: "IP Blacklist Status"
+        description: "Check if Home IP is flagged for spam"
+        icon: "fas fa-user-secret"
+        url: ""
+
+      - title: "CVE Vulnerability Feed"
+        description: "Latest Critical Security Advisories"
+        icon: "fas fa-bug"
+        url: "https://nvd.nist.gov/"
+        target: "newtab"
+
+    widgets:
+      - type: "public-ip"
+        options:
+          provider: "ipquery"
+      - type: "blacklist-check"
+        options:
+          apiKey: "api-key"
+      - type: "cve-vulnerabilities"
+        options:
+          limit: 4 #set to whatever you want
+          cvssV3Severity: "HIGH"
+          apiKey: "api-key"
+
+  # ── 3. Infrastructure & Routing ────────────────────────────
+  - name: "Infrastructure & Routing"
+    icon: "fas fa-server"
+    displayData:
+      cols: 1
+      collapsed: false
+    items:
+      - title: "Nginx Proxy Manager"
+        description: "Reverse Proxy & SSL Certificate Management"
+        icon: "hl-nginx-proxy-manager"
+        url: "https://npm-domain"
+        target: "newtab"
+
+      - title: "Uptime Kuma"
+        description: "Observability, Alerting & Incident Management"
+        icon: "hl-uptime-kuma"
+        url: "https://uptime-domain"
+        target: "newtab"
+
+      - title: "Vodafone Edge Router"
+        description: "ISP Gateway — Layer 3"
+        icon: "fas fa-network-wired"
+        url: "http://router-internal-ip"
+        target: "newtab"
+
+    widgets:
+      - type: "uptime-kuma"
+        options:
+          publicGroupId: 1
+          url: "https://uptime-domain/metrics"
+          apiKey: "api_key"
+          useProxy: true
+
+  # ── 4. Observability & Logs ────────────────────────────────
+  - name: "Observability & Logs"
+    icon: "fas fa-chart-line"
+    displayData:
+      cols: 1
+      collapsed: false
+    items:
+      - title: "Dozzle"
+        description: "Real-time Container Log Streaming"
+        icon: "fas fa-terminal"
+        url: "https://dozzle-domain"
+        target: "newtab"
+
+  # ── 5. Quick Links ─────────────────────────────────────────
+  - name: "Quick Links"
+    icon: "fas fa-link"
+    displayData:
+      cols: 1
+      collapsed: false
+    items:
+      - title: "GitHub Repo"
+        description: "Homelab Source & IaC Repository"
+        icon: "fab fa-github"
+        url: "https://github.com/username"
+        target: "newtab"
+
+      - title: "My GitHub Stats"
+        description: "DevSecOps Contributions"
+        icon: "fas fa-code-branch"
+        url: "https://github.com/username"
+
+      - title: "System Status Page"
+        description: "Public Uptime Kuma Status"
+        icon: "fas fa-signal"
+        url: "https://uptime-domain/status/status-page"
+        target: "newtab"
+
+    widgets:
+      - type: "github-profile-stats"
+        options:
+          username: "username"
