@@ -7,14 +7,7 @@
 *.pem
 
 ##Docker volumes
-pihole/
-wireguard/
-nginx/
-vaultwarden/
-uptime-kuma-data/
-dashy/
-dozzle/
-
+containers/
 ##in case of other os and logs
 *.log
 *.err
