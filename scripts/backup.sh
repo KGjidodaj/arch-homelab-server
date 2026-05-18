@@ -4,6 +4,7 @@
 source "$HOME/.env"
 
 Backup_dest="/mnt/usb_backup"
+# shellcheck disable=SC2154
 Source_dir="$location"
 Date=$(date +%F)
 
@@ -21,7 +22,7 @@ if mountpoint -q "$Backup_dest";then #checking mounting in the background
 	fi
 
 	echo " Unmounting USB" #using umount for security
-	sudo umount $Backup_dest
+	sudo umount "$Backup_dest"
 	echo "Done unmounting"
 else
 	echo "ERROR: mountpoint failed usb not found or mount failed"

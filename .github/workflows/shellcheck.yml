@@ -2,6 +2,9 @@ name: Bash Script CI
 on:
   push:
     branches: ["main"]
+    paths: #making it run only if .sh files are changed or this file is changed
+      - 'scripts/*.sh'
+      - '.github/workflows/**'
   pull_request:
     branches: ["main"]
 #node 20 actions are deprecated so using node 24
