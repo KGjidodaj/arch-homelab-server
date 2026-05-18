@@ -7,9 +7,6 @@ on:
       - '.github/workflows/**'
   pull_request:
     branches: ["main"]
-#node 20 actions are deprecated so using node 24
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
   arch_shellcheck:
@@ -17,6 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
