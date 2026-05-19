@@ -31,4 +31,4 @@ jobs:
               commas: enable
               indentation:
                 spaces: 2
-                indent-sequence: consistent
+                indent-sequences: consistent
