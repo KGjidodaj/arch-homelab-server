@@ -54,7 +54,7 @@ services:
     environment:
       - PUID=1000
       - PGID=1000
-      - TZ=Europe/Athens
+      - TZ=${TIMEZONE}
       - SUBDOMAINS=${SDOMAIN}
       - TOKEN=${TOKEN}
     restart: unless-stopped
@@ -64,17 +64,17 @@ services:
     image: adguard/dnsproxy:latest
     command: -l 0.0.0.0 -p 5053 -u https://dns.quad9.net/dns-query -b 9.9.9.9
     environment:
-      - TZ=Europe/Athens
+      - TZ=${TIMEZONE}
     restart: unless-stopped
 
   nginx-proxy-manager:
     container_name: nginx-proxy-manager
     image: 'jc21/nginx-proxy-manager:2'
     ports:
-      - '80:80'
-      - '443:443'
+      - '${Server_LAN_IP}:80:80'
+      - '${Server_LAN_IP}:443:443'
     environment:
-      - TZ=Europe/Athens
+      - TZ=${TIMEZONE}
     volumes: #in any case for the ssl certificate to not be lost
       - ./containers/nginx/data:/data
       - ./containers/nginx/letsencrypt:/etc/letsencrypt
