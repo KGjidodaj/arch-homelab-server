@@ -5,7 +5,7 @@
 .recovery
 *.key
 *.pem
-
+*.bak
 ##Docker volumes
 containers/
 ##in case of other os and logs

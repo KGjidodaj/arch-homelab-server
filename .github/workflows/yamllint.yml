@@ -23,7 +23,7 @@ jobs:
             rules:
               line-length: disable
               document-start: disable
-              truthly: disable
+              truthy: disable
               comments: disable
               braces: enable
               brackets: enable
