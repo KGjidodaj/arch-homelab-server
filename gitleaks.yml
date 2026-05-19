@@ -1,0 +1,17 @@
+name: Gitleaks
+on:
+  push:
+  pull_request:
+jobs:
+  scan:
+    name: Scan for leaked info
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name:
+        uses: gitleaks/gitleaks-action@v8
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -15,9 +15,9 @@ jobs:
     steps:
       - name: actions/checkout@v6
       - name: Run Yamllint
-        uses: ibiqlik/actions-yamllint@v3
+        uses: ibiqlik/action-yamllint@v3
         with:
-          config_date: |
+          config_data: |
             extends: default
             rules:
               line-length: disable
