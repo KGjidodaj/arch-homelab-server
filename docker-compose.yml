@@ -23,7 +23,7 @@ services:
   wireguard:
     image: lscr.io/linuxserver/wireguard:latest
     container_name: wireguard
-    cap_add: #Giving capabilities only needed to run not more 
+    cap_add: #Giving capabilities only needed to run not more
       - NET_ADMIN
       - SYS_MODULE
     environment:
@@ -125,7 +125,7 @@ services:
     image: tecnativa/docker-socket-proxy:v0.4.2
     container_name: socket-proxy
     environment:
-    #setting up dozzle capabilitities
+      # setting up dozzle capabilitities
       - CONTAINERS=1
       - INFO=1
       - POST=0
