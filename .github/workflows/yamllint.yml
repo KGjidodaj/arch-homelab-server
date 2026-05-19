@@ -13,7 +13,8 @@ jobs:
     name: YAML Files Check
     runs-on: ubuntu-latest
     steps:
-      - name: actions/checkout@v6
+      - name: checkout code
+        uses: actions/checkout@v6
       - name: Run Yamllint
         uses: ibiqlik/action-yamllint@v3
         with:
