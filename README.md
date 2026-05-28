@@ -24,6 +24,7 @@ The core application stack is deployed via Docker and Docker Compose, ensuring p
 * **Dozzle:** A lightweight, web-based log viewer providing real-time container log streaming and observability for rapid debugging and IPS monitoring.
 * **DuckDNS:** A dynamic DNS updater that maintains routing for infrastructure and application-specific subdomains.
 * **Uptime Kuma:** A self-hosted monitoring tool for zero-trust observability. It monitors backend containers internally via Docker hostnames, checks SSL certificate expirations and verifies external DNS resolution without exposing its port to the public web.
+* **Authelia:** Acts as an Identity and Access Management (IAM) server.Providing Single Sign-On (SSO) and Two-Factor Authentication (2FA) for the homelab. It intercepts traffic at the NPM level, forcing users to authenticate via a secure portal. Adding enterprise-grade password protection to applications that lack native authentication.
 
 ## Security, Zero-Trust Routing & Telemetry
 
@@ -35,8 +36,17 @@ Security is enforced at both the network and application layers, operating on a 
 * **Micro-Segmented Firewall (UFW) & Behavioral IPS (CrowdSec):** The host firewall (`ufw`) is configured with a default DROP policy. Internal routing is controlled via UFW route rules. Allowing traffic to pass only between the WireGuard subnet and the internal Docker bridge network. This L4 defense is paired with **CrowdSec**, a modern, behavioral Intrusion Prevention System. CrowdSec actively analyzes Nginx logs and Vaultwarden telemetry, automatically banning malicious IPs attempting brute-force or L7 layer attacks via a kernel-level `iptables` bouncer.
 * **Internal Name Resolution:** NPM routes traffic to backend services using internal Docker hostnames (e.g., `vaultwarden:80`) rather than the host's LAN IP, keeping traffic entirely within the safe Docker virtual switch.
 * **Host Telemetry Daemon:** A custom bash script (`health_check.sh`) runs as a background daemon using a dedicated user crontab. It continuously monitors CPU temperature, free RAM and Disk usage. It then pushes telemetry data via API to Uptime-Kuma every 60 seconds for real-time webhook alerting. Alerting also if hardware thresholds are exceeded.
-* **Air-Gapped Daily Backups (Total RTO Optimization):** Designed a highly resilient Disaster Recovery pipeline. An automated daily cronjob (`backup.sh`), running securely under its own distinct crontab user, temporarily mounts an external USB drive, extracts all critical volumes and then unmounts it. This renders the backup drive invisible to the filesystem, effectively securing it from ransomware. Combined with this GitOps repository, the infrastructure can be rebuilt from scratch in minutes.
+* **Advanced 3-2-1 Disaster Recovery&Backups** The server uses a strict 3-2-1 backup strategy to guarantee data survival and Total RTO Optimization. Data exists across three mediums: First to the primary Chromebook eMMC storage. Then to an automated daily air-gapped extraction to an external USB drive (mounted, extracted and unmounted via a cron daemon). Finally an encrypted snapshot pushed to Google Drive using Restic and Rclone. Combined with this GitOps repository, the infrastructure can be rebuilt from scratch in minutes.
 * **Strict Secrets Management:** All secrets, API tokens and environment variables are saved in a `.env` file. A comprehensive `.gitignore` ensures that no Docker volumes or other sensitive information are ever committed to version control.
+
+## Continuous Integration & Repository Security (CI/CD)
+
+To enforce code quality and prevent accidental credential leaks, this repository utilizes automated GitHub Actions workflows:
+
+* **Shellcheck:** Automatically scans bash scripts (like the host telemetry and Restic backup scripts) on push. Detecting syntax errors, unassigned variables and bad practices before deployment.
+* **Yamllint:** Enforces strict YAML formatting for Docker Compose files and automation scripts. Catching indentation and syntax errors that could break deployments.
+* **Gitleaks:** A continuous security scanner that analyzes every commit for hardcoded secrets, API tokens and passwords. Blocking pushes that expose sensitive data.
+* **Dependabot:** An automated dependency manager that  scans repository configurations and generates pull requests to update outdated GitHub Actions.
 
 ## Deployment Configuration
 
