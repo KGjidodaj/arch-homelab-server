@@ -1,5 +1,5 @@
 #!/bin/bash
-
+#shellcheck disable=SC1091
 source .env
 #shellcheck disable=SC2154
 export RESTIC_PASSWORD="$Pass"
