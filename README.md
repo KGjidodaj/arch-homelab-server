@@ -56,3 +56,10 @@ To enforce code quality and prevent accidental credential leaks, this repository
 4. Deploy the stack using `docker-compose up -d`.
 5. Setup each dashboard login (if required) and setup to you needs and liking.
 6. Restore persistent data from the  USB backup drive, if performing a total disaster recovery.
+
+#Dashboard Examples:
+##DASHY (removing router info)
+<img width="1919" height="884" alt="Screenshot 2026-06-11 025127" src="https://github.com/user-attachments/assets/02d6bbf0-d59c-461d-8d02-6060ebf3f1fb" />
+
+##UPTIME-KUMA
+<img width="1919" height="905" alt="Screenshot 2026-06-11 025624" src="https://github.com/user-attachments/assets/253c079b-937d-416a-a272-033d728be917" />
